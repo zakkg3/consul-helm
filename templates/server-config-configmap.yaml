@@ -24,7 +24,7 @@ data:
       }
     }
   {{- end }}
-  {{- if (and .Values.connectInject.enabled .Values.connectInject.centralConfig.enabled) }}
+  {{- if or (and .Values.connectInject.enabled .Values.connectInject.centralConfig.enabled) .Values.meshGateway.enabled }}
   central-config.json: |-
     {
       "enable_central_service_config": true
@@ -37,8 +37,28 @@ data:
           {
             "kind": "proxy-defaults",
             "name": "global",
+            {{- if .Values.meshGateway.enabled }}
+            "mesh_gateway": {
+              "mode": {{ .Values.meshGateway.mode | quote }}
+            },
+            {{- end }}
             "config":
 {{ tpl .Values.connectInject.centralConfig.proxyDefaults . | trimAll "\"" | indent 14 }}
+          }
+        ]
+      }
+    }
+  {{- else if .Values.meshGateway.enabled }}
+  proxy-defaults-config.json: |-
+    {
+      "config_entries": {
+        "bootstrap": [
+          {
+            "kind": "proxy-defaults",
+            "name": "global",
+            "mesh_gateway": {
+              "mode": {{ .Values.meshGateway.mode | quote }}
+            }
           }
         ]
       }

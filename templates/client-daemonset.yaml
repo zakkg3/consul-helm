@@ -101,7 +101,7 @@ spec:
                 -advertise="${POD_IP}" \
                 -bind=0.0.0.0 \
                 -client=0.0.0.0 \
-                {{- if .Values.client.grpc }}
+                {{- if or .Values.client.grpc .Values.meshGateway.enabled }}
                 -hcl="ports { grpc = 8502 }" \
                 {{- end }}
                 -config-dir=/consul/config \
